@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles/styles.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tauri App</title>
+    <script type="module" src="scripts/create.js" defer></script>
+  </head>
+
+  <body>
+    <main class="container">
+      <h1>Create new macro</h1>
+        <div class="row">
+          <button type="submit" id="select_button">Button select</button>
+          <button type="submit" id="time_button">Change time</button>
+          <button type="submit" id="interval_button">Time interval</button>
+          <button type="submit" id="add_button">Add brick</button>
+        </div>
+        <div class="row">
+          <p id="time_after_key"></p>
+        </div>
+    </main>
+  </body>
+
+  <dialog id="waitDialog">
+    <form method="dialog">
+      <label>
+        Enter the time to wait for:
+        <input id="waitInput" value="1.0" />
+      </label>
+
+      <button value="ok">OK</button>
+      <button value="cancel">Cancel</button>
+    </form>
+  </dialog>
+</html>
