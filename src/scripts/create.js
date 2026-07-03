@@ -4,19 +4,19 @@ let timeAfterPara;
 let timeAfter = 1.0;
 let keyCode = "";
 
-async function read_key(event) {
+async function readKey(event) {
     console.log("You pressed:", event.key);
     keyCode = event.code;
     await invoke("read_key", {keyName: event.key, keyCode: event.code});
     document.removeEventListener("keydown", read_key);
 }
 
-async function set_time() {
-    let time = await time_dialog();
+async function setTime() {
+    let time = await timeDialog();
     await invoke("set_time", {time: time});
 }
 
-function time_dialog() {
+function timeDialog() {
     const dialog = document.getElementById("waitDialog");
     const input = document.getElementById("waitInput");
 
@@ -51,7 +51,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("time_button").addEventListener("click", () => {  
-        set_time();
+        setTime();
     });
 
     timeAfterPara = document.getElementById("time_after_key");
