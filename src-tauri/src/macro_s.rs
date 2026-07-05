@@ -1,13 +1,15 @@
+use std::usize;
+
 use rdev::Key;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Brick {
-    button: String,
-    wait: f64,
+    pub button: String,
+    pub wait: f64,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Macro {
     pub bricks: Vec<Brick>,
     pub key_bind: String,

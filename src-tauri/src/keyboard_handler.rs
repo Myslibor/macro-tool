@@ -124,3 +124,129 @@ pub fn js_code_to_rdev(code: &str) -> Option<Key> {
         _ => return None,
     })
 }
+
+pub fn rdev_to_js_code(key: Key) -> Option<&'static str> {
+    Some(match key {
+        // Letters
+        Key::KeyA => "KeyA",
+        Key::KeyB => "KeyB",
+        Key::KeyC => "KeyC",
+        Key::KeyD => "KeyD",
+        Key::KeyE => "KeyE",
+        Key::KeyF => "KeyF",
+        Key::KeyG => "KeyG",
+        Key::KeyH => "KeyH",
+        Key::KeyI => "KeyI",
+        Key::KeyJ => "KeyJ",
+        Key::KeyK => "KeyK",
+        Key::KeyL => "KeyL",
+        Key::KeyM => "KeyM",
+        Key::KeyN => "KeyN",
+        Key::KeyO => "KeyO",
+        Key::KeyP => "KeyP",
+        Key::KeyQ => "KeyQ",
+        Key::KeyR => "KeyR",
+        Key::KeyS => "KeyS",
+        Key::KeyT => "KeyT",
+        Key::KeyU => "KeyU",
+        Key::KeyV => "KeyV",
+        Key::KeyW => "KeyW",
+        Key::KeyX => "KeyX",
+        Key::KeyY => "KeyY",
+        Key::KeyZ => "KeyZ",
+
+        // Number row
+        Key::Num0 => "Digit0",
+        Key::Num1 => "Digit1",
+        Key::Num2 => "Digit2",
+        Key::Num3 => "Digit3",
+        Key::Num4 => "Digit4",
+        Key::Num5 => "Digit5",
+        Key::Num6 => "Digit6",
+        Key::Num7 => "Digit7",
+        Key::Num8 => "Digit8",
+        Key::Num9 => "Digit9",
+
+        // Numpad
+        Key::Kp0 => "Numpad0",
+        Key::Kp1 => "Numpad1",
+        Key::Kp2 => "Numpad2",
+        Key::Kp3 => "Numpad3",
+        Key::Kp4 => "Numpad4",
+        Key::Kp5 => "Numpad5",
+        Key::Kp6 => "Numpad6",
+        Key::Kp7 => "Numpad7",
+        Key::Kp8 => "Numpad8",
+        Key::Kp9 => "Numpad9",
+        Key::KpDelete => "NumpadDecimal",
+        Key::KpReturn => "NumpadEnter",
+        Key::KpPlus => "NumpadAdd",
+        Key::KpMinus => "NumpadSubtract",
+        Key::KpMultiply => "NumpadMultiply",
+        Key::KpDivide => "NumpadDivide",
+
+        // Modifiers
+        Key::Alt => "AltLeft",      // Note: JS has AltLeft/AltRight, rdev has single Alt
+        Key::ControlLeft => "ControlLeft",
+        Key::ControlRight => "ControlRight",
+        Key::ShiftLeft => "ShiftLeft",
+        Key::ShiftRight => "ShiftRight",
+        Key::MetaLeft => "MetaLeft",
+        Key::MetaRight => "MetaRight",
+        Key::CapsLock => "CapsLock",
+        Key::NumLock => "NumLock",
+
+        // Navigation
+        Key::UpArrow => "ArrowUp",
+        Key::DownArrow => "ArrowDown",
+        Key::LeftArrow => "ArrowLeft",
+        Key::RightArrow => "ArrowRight",
+        Key::Home => "Home",
+        Key::End => "End",
+        Key::PageUp => "PageUp",
+        Key::PageDown => "PageDown",
+        Key::Insert => "Insert",
+        Key::Delete => "Delete",
+
+        // Control keys
+        Key::Return => "Enter",
+        Key::Escape => "Escape",
+        Key::Backspace => "Backspace",
+        Key::Tab => "Tab",
+        Key::Space => "Space",
+        Key::PrintScreen => "PrintScreen",
+        Key::ScrollLock => "ScrollLock",
+        Key::Pause => "Pause",
+
+        // Punctuation / symbols
+        Key::BackQuote => "Backquote",
+        Key::Minus => "Minus",
+        Key::Equal => "Equal",
+        Key::LeftBracket => "BracketLeft",
+        Key::RightBracket => "BracketRight",
+        Key::BackSlash => "Backslash",
+        Key::IntlBackslash => "IntlBackslash",
+        Key::SemiColon => "Semicolon",
+        Key::Quote => "Quote",
+        Key::Comma => "Comma",
+        Key::Dot => "Period",
+        Key::Slash => "Slash",
+
+        // Function keys
+        Key::F1 => "F1",
+        Key::F2 => "F2",
+        Key::F3 => "F3",
+        Key::F4 => "F4",
+        Key::F5 => "F5",
+        Key::F6 => "F6",
+        Key::F7 => "F7",
+        Key::F8 => "F8",
+        Key::F9 => "F9",
+        Key::F10 => "F10",
+        Key::F11 => "F11",
+        Key::F12 => "F12",
+
+        // Unsupported keys
+        _ => return None,
+    })
+}

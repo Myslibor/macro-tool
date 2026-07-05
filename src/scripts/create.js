@@ -2,18 +2,27 @@ const { invoke } = window.__TAURI__.core;
 
 let timeAfterPara;
 let timeAfter = 1.0;
-let keyCode = "";
+
+let selectedKeyPara;
+let selectedKey = "KeyA";
+
+let macro;
 
 async function readKey(event) {
     console.log("You pressed:", event.key);
-    keyCode = event.code;
     await invoke("read_key", {keyName: event.key, keyCode: event.code});
-    document.removeEventListener("keydown", read_key);
+    document.removeEventListener("keydown", readKey);
+
+    selectedKey = event.code;
+    selectedKeyPara.textContent = "Selected key: " + selectedKey;
 }
 
 async function setTime() {
     let time = await timeDialog();
+    timeAfter = time;
     await invoke("set_time", {time: time});
+
+    timeAfterPara.textContent = "Time after key: " + timeAfter;
 }
 
 function timeDialog() {
@@ -44,17 +53,28 @@ function timeDialog() {
 
 }
 
+async function addBrick() {
+    invoke("add_brick")
+}
+
 
 window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("select_button").addEventListener("click", () => {
-        document.addEventListener("keydown", read_key);
+        document.addEventListener("keydown", readKey);
     });
 
     document.getElementById("time_button").addEventListener("click", () => {  
         setTime();
     });
 
+    document.getElementById("add_brick").addEventListener("click", () => {  
+        addBrick();
+    });
+
     timeAfterPara = document.getElementById("time_after_key");
-    timeAfterPara.textContent = "Time after key:" + timeAfter;
+    timeAfterPara.textContent = "Time after key: " + timeAfter;
+
+    selectedKeyPara = document.getElementById("selected_key");
+    selectedKeyPara.textContent = "Selected key: " + selectedKey;
 
 });
