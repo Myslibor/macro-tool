@@ -52,6 +52,8 @@ fn add_brick(state: tauri::State<Arc<Mutex<AppState>>>){
         wait: state.selected_time,
     };
 
+    println!("{:?}",new_brick);
+
     state.new_macro.bricks.push(new_brick);
 }
 

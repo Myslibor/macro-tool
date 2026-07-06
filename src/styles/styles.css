@@ -98,14 +98,14 @@ button {
   margin-right: 5px;
 }
 
-.macro-grid {
+.brick-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 10px;
   padding: 10px;
 }
 
-.macro-btn {
+.brick-btn {
   padding: 12px;
   background: #333;
   color: white;
@@ -113,10 +113,6 @@ button {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
-}
-
-.macro-btn:hover {
-  background: #555;
 }
 
 @media (prefers-color-scheme: dark) {
