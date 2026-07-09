@@ -56,7 +56,7 @@ function timeDialog() {
 
 async function addBrick() {
     await invoke("add_brick");
-    renderBricksButtons()
+    renderBricksButtons();
 }
 
 async function renderBricksButtons(){
@@ -74,6 +74,11 @@ async function renderBricksButtons(){
     bricks.forEach((brick, index) => {
         const button = document.createElement('button');
         button.className = 'brick-btn';
+
+        button.addEventListener("click", () => {
+            
+        });
+
         button.textContent = `${index+1}: ` + brick.button + ` ${brick.wait}s`;
         button.dataset.index = index;
 
@@ -81,6 +86,17 @@ async function renderBricksButtons(){
     });
 
     container.appendChild(grid);
+}
+
+async function saveMacro(){
+    let is_saved = await invoke("save_macro");
+
+    if(is_saved == false ){
+        alert("Can't save a macro with no bricks!");
+        return;
+    }
+
+    window.location.href = "index.html";
 }
 
 
@@ -98,7 +114,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
     
     document.getElementById("save_button").addEventListener("click", () => {  
-        
+        saveMacro();
     });
 
     timeAfterPara = document.getElementById("time_after_key");

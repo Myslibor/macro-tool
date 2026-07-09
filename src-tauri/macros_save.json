@@ -1,0 +1,50 @@
+{
+  "macros": [
+    {
+      "bricks": [
+        {
+          "button": "KeyS",
+          "wait": 231.0
+        },
+        {
+          "button": "KeyS",
+          "wait": 231.0
+        },
+        {
+          "button": "KeyS",
+          "wait": 231.0
+        },
+        {
+          "button": "KeyS",
+          "wait": 231.0
+        }
+      ],
+      "key_bind": " ",
+      "has_loop": false
+    }
+  ],
+  "new_macro": {
+    "bricks": [
+      {
+        "button": "KeyS",
+        "wait": 231.0
+      },
+      {
+        "button": "KeyS",
+        "wait": 231.0
+      },
+      {
+        "button": "KeyS",
+        "wait": 231.0
+      },
+      {
+        "button": "KeyS",
+        "wait": 231.0
+      }
+    ],
+    "key_bind": " ",
+    "has_loop": false
+  },
+  "selected_key": "KeyS",
+  "selected_time": 231.0
+}

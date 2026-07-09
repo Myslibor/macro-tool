@@ -9,7 +9,7 @@ pub struct Brick {
     pub wait: f64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Macro {
     pub bricks: Vec<Brick>,
     pub key_bind: String,
