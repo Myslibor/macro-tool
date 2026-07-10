@@ -1,11 +1,17 @@
 const { invoke } = window.__TAURI__.core;
 
 
-let timeAfterPara;
+let timeAfterPara = document.getElementById("time_after_key");
 let timeAfter = 1.0;
 
-let selectedKeyPara;
+let selectedKeyPara = document.getElementById("selected_key");
 let selectedKey = "KeyA";
+
+let macroNamePara = document.getElementById("macro_name");
+let macroName = "Default name";
+
+let keyBindPara = document.getElementById("macro_keybind");
+let keyBind = [];
 
 let macro;
 
@@ -18,40 +24,56 @@ async function readKey(event) {
     selectedKeyPara.textContent = "Selected key: " + selectedKey;
 }
 
+async function readKeyBind(event) {
+    if(event.code == 'Escape'){
+        document.removeEventListener("keydown", readKeyBind);
+        console.log("Final keyBind: ", keyBind);
+
+        await invoke("set_key_bind", {keyBind: keyBind})
+
+        keyBind = [];
+        let temp_keybind = await invoke("get_key_bind");
+        keyBindPara.textContent = "KeyBind is: " + temp_keybind;
+        return;
+    }
+
+    if(!keyBind.includes(event.code)){
+        keyBind.push(event.code);
+    }
+    
+    console.log("current key bind: ", keyBind);
+}
+
+async function setName() {
+    let name = await window.prompt("Input this macro's name: ", "A name");
+
+    if(name == null){
+        alert("Please enter a valid name!");
+        return;
+    }
+
+    macroName = name;
+    await invoke("set_new_name", {name: name});
+
+    macroNamePara.textContent = "Time after key: " + name;
+}
+
 async function setTime() {
-    let time = await timeDialog();
+    let input = await window.prompt("Enter the time to wait for:","1.0");
+
+    const time = Number.parseFloat(input);
+    console.log(time);
+
+    if(Number.isNaN(time)){
+        alert("Please enter a valid float number!");
+        resolve(null);
+        return;
+    }
+
     timeAfter = time;
     await invoke("set_time", {time: time});
 
     timeAfterPara.textContent = "Time after key: " + timeAfter;
-}
-
-function timeDialog() {
-    const dialog = document.getElementById("waitDialog");
-    const input = document.getElementById("waitInput");
-
-    input.value = ""
-    dialog.showModal();
-
-    return new Promise((resolve) => {
-        dialog.addEventListener("close", () => {
-            if (dialog.returnValue !== "ok") {
-                resolve(null);
-                return;
-            }
-            
-            const time = Number.parseFloat(input.value);
-            console.log(time);
-
-            if(Number.isNaN(time)){
-                alert("Please enter a valid float number!");
-                resolve(null);
-                return;
-            }
-            resolve(time);
-        },{once: true});
-    });
-
 }
 
 async function addBrick() {
@@ -75,8 +97,10 @@ async function renderBricksButtons(){
         const button = document.createElement('button');
         button.className = 'brick-btn';
 
-        button.addEventListener("click", () => {
-            
+        button.addEventListener("click", async () => {
+            await invoke("delete_brick", { index: index });
+            console.log("deleted brick nr.",index);
+            renderBricksButtons();
         });
 
         button.textContent = `${index+1}: ` + brick.button + ` ${brick.wait}s`;
@@ -92,7 +116,7 @@ async function saveMacro(){
     let is_saved = await invoke("save_macro");
 
     if(is_saved == false ){
-        alert("Can't save a macro with no bricks!");
+        alert("Can't save a macro with no bricks, no name or no key bind!");
         return;
     }
 
@@ -101,12 +125,29 @@ async function saveMacro(){
 
 
 window.addEventListener("DOMContentLoaded", () => {
+
+    timeAfterPara.textContent = "Time after key: " + timeAfter;
+
+    selectedKeyPara.textContent = "Selected key: " + selectedKey;
+
+    macroNamePara.textContent = "Macro name: " + macroName;
+
+    keyBindPara.textContent = "KeyBind is: " + keyBind;
+
     document.getElementById("select_button").addEventListener("click", () => {
         document.addEventListener("keydown", readKey);
     });
 
     document.getElementById("time_button").addEventListener("click", () => {  
         setTime();
+    });
+
+    document.getElementById("change_name_button").addEventListener("click", () => {  
+        setName();
+    });
+
+    document.getElementById("select_keybind_name").addEventListener("click", () => {
+        document.addEventListener("keydown", readKeyBind);
     });
 
     document.getElementById("add_brick").addEventListener("click", () => {  
@@ -116,11 +157,5 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("save_button").addEventListener("click", () => {  
         saveMacro();
     });
-
-    timeAfterPara = document.getElementById("time_after_key");
-    timeAfterPara.textContent = "Time after key: " + timeAfter;
-
-    selectedKeyPara = document.getElementById("selected_key");
-    selectedKeyPara.textContent = "Selected key: " + selectedKey;
 
 });

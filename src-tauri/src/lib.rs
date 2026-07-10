@@ -37,11 +37,7 @@ fn set_time( time: f64, state: tauri::State<Arc<Mutex<AppState>>>) {
 fn create_new_macro(state: tauri::State<Arc<Mutex<AppState>>>){
     let mut state = state.lock().unwrap();
 
-    let mut new_macro = Macro{
-        bricks: Vec::new(),
-        key_bind: format!(" "),
-        has_loop: false,
-    };
+    let mut new_macro = Macro::new();
 
     state.new_macro = new_macro;
 
@@ -65,9 +61,12 @@ fn add_brick(state: tauri::State<Arc<Mutex<AppState>>>){
 fn save_macro(state: tauri::State<Arc<Mutex<AppState>>>) -> bool{
     let mut state = state.lock().unwrap();
 
-    if state.new_macro.bricks.is_empty() {
+    if state.new_macro.bricks.is_empty() || 
+    state.new_macro.key_bind.is_empty() || 
+    state.new_macro.name.is_empty(){
         return false;
     }
+
 
     let to_push = state.new_macro.clone();
     state.macros.push(to_push);
@@ -79,6 +78,30 @@ fn save_everything(state: tauri::State<Arc<Mutex<AppState>>>){
     let mut state = state.lock().unwrap();
 
     save_state_to_json(&state);
+}
+
+#[tauri::command]
+fn delete_brick(index: usize, state: tauri::State<Arc<Mutex<AppState>>>){
+    let mut state = state.lock().unwrap();
+
+    state.new_macro.bricks.remove(index);
+    println!("deleted brick nr.{}",index);
+}
+
+#[tauri::command]
+fn set_new_name(name: String, state: tauri::State<Arc<Mutex<AppState>>>){
+    let mut state = state.lock().unwrap();
+
+    state.new_macro.name = name.clone();
+    println!("new name is {}", name);
+}
+
+#[tauri::command]
+fn set_key_bind(key_bind: Vec<String>, state: tauri::State<Arc<Mutex<AppState>>>){
+    let mut state = state.lock().unwrap();
+
+    state.new_macro.key_bind = key_bind.clone();
+    println!("new keybind is {:?}", key_bind);
 }
 
 //getters for js
@@ -106,17 +129,25 @@ fn get_macros(state: tauri::State<Arc<Mutex<AppState>>>) -> Vec<Macro>{
 fn get_macro(index: usize, state: tauri::State<Arc<Mutex<AppState>>>) -> Macro{
     let state = state.lock().unwrap();
     return state.macros.get(index).cloned().unwrap();
-}          
+}      
+
+#[tauri::command]
+fn get_new_name(state: tauri::State<Arc<Mutex<AppState>>>) -> String{
+    let state = state.lock().unwrap();
+    return state.new_macro.name.clone();
+}  
+
+#[tauri::command]
+fn get_key_bind(state: tauri::State<Arc<Mutex<AppState>>>) -> Vec<String>{
+    let state = state.lock().unwrap();
+    return state.new_macro.key_bind.clone();
+}  
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let init_state = save::load_json_to_state().unwrap_or(AppState{
         macros: Vec::new(),
-        new_macro: Macro{
-            bricks: Vec::new(),
-            key_bind: format!(" "),
-            has_loop: false,
-        },
+        new_macro: Macro::new(),
         selected_key: "KeyA".into(),
         selected_time: 1.0,
     });
@@ -133,7 +164,12 @@ pub fn run() {
             get_new_macro,
             get_macros,
             save_macro,
-            save_everything
+            save_everything,
+            delete_brick,
+            get_new_name,
+            set_new_name,
+            set_key_bind,
+            get_key_bind
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
