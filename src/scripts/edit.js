@@ -8,12 +8,21 @@ let selectedKeyPara = document.getElementById("selected_key");
 let selectedKey = "KeyA";
 
 let macroNamePara = document.getElementById("macro_name");
-let macroName = "Default name";
+let macroName;
 
 let keyBindPara = document.getElementById("macro_keybind");
-let keyBind = [];
+let keyBind;
+
+let hasLoopPara = document.getElementById("has_loop");
+let hasLoop;
 
 let macro;
+
+async function load_new_data() {
+    macroName = await invoke("get_new_name");
+    keyBind = await invoke("get_key_bind");
+    hasLoop = await invoke("get_new_has_loop");
+}
 
 async function readKey(event) {
     console.log("You pressed:", event.key);
@@ -55,7 +64,7 @@ async function setName() {
     macroName = name;
     await invoke("set_new_name", {name: name});
 
-    macroNamePara.textContent = "Time after key: " + name;
+    macroNamePara.textContent = "Macro name: " + name;
 }
 
 async function setTime() {
@@ -79,6 +88,12 @@ async function setTime() {
 async function addBrick() {
     await invoke("add_brick");
     renderBricksButtons();
+}
+
+async function changeLoop() {
+    hasLoop = !hasLoop;
+    hasLoopPara.textContent = "Has loop: " + hasLoop;
+    await invoke("set_loop",{hasLoop: hasLoop});
 }
 
 async function renderBricksButtons(){
@@ -124,15 +139,15 @@ async function saveMacro(){
 }
 
 
-window.addEventListener("DOMContentLoaded", () => {
+window.addEventListener("DOMContentLoaded", async () => {
+
+    await load_new_data();
 
     timeAfterPara.textContent = "Time after key: " + timeAfter;
-
     selectedKeyPara.textContent = "Selected key: " + selectedKey;
-
     macroNamePara.textContent = "Macro name: " + macroName;
-
     keyBindPara.textContent = "KeyBind is: " + keyBind;
+    hasLoopPara.textContent = "Has loop: " + hasLoop;
 
     document.getElementById("select_button").addEventListener("click", () => {
         document.addEventListener("keydown", readKey);
@@ -150,6 +165,10 @@ window.addEventListener("DOMContentLoaded", () => {
         document.addEventListener("keydown", readKeyBind);
     });
 
+    document.getElementById("loop_button").addEventListener("click", () => {  
+        changeLoop();
+    });
+
     document.getElementById("add_brick").addEventListener("click", () => {  
         addBrick();
     });
@@ -157,5 +176,7 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("save_button").addEventListener("click", () => {  
         saveMacro();
     });
+
+    renderBricksButtons();
 
 });

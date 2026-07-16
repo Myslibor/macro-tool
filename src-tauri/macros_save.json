@@ -12,10 +12,10 @@
         }
       ],
       "key_bind": [
-        "KeyP",
-        "Space"
+        "Space",
+        "KeyA"
       ],
-      "name": "Default name",
+      "name": "dawdw",
       "has_loop": false
     }
   ],
@@ -31,10 +31,10 @@
       }
     ],
     "key_bind": [
-      "KeyP",
-      "Space"
+      "Space",
+      "KeyA"
     ],
-    "name": "Default name",
+    "name": "dawdw",
     "has_loop": false
   },
   "selected_key": "KeyA",

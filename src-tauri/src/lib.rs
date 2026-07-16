@@ -1,7 +1,7 @@
 use std::f64;
 use std::sync::{Arc, Mutex};
 
-use rdev::Key;
+use rdev::{listen, Event, EventType, Key};
 use serde::{Deserialize, Serialize};
 
 use crate::keyboard_handler::{js_code_to_rdev, rdev_to_js_code};
@@ -11,6 +11,7 @@ use crate::save::save_state_to_json;
 mod keyboard_handler;
 mod macro_s;
 mod save;
+mod listener_handler;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct AppState {
@@ -41,6 +42,17 @@ fn create_new_macro(state: tauri::State<Arc<Mutex<AppState>>>){
 
     state.new_macro = new_macro;
 
+}
+
+#[tauri::command]
+fn edit_macro(index: usize, state: tauri::State<Arc<Mutex<AppState>>>){
+    let mut state = state.lock().unwrap();
+
+    state.new_macro = state.macros.get(index).cloned().unwrap();
+    println!("new macro is now macro nr.{}",index);
+
+    state.macros.remove(index);
+    println!("removed macro macro nr.{}",index);
 }
 
 #[tauri::command]
@@ -104,6 +116,15 @@ fn set_key_bind(key_bind: Vec<String>, state: tauri::State<Arc<Mutex<AppState>>>
     println!("new keybind is {:?}", key_bind);
 }
 
+#[tauri::command]
+fn set_loop(has_loop: bool, state: tauri::State<Arc<Mutex<AppState>>>){
+    let mut state = state.lock().unwrap();
+
+    state.new_macro.has_loop = has_loop;
+    println!("new macro loop state is {}", has_loop);
+}
+
+
 //getters for js
 
 #[tauri::command]
@@ -131,6 +152,8 @@ fn get_macro(index: usize, state: tauri::State<Arc<Mutex<AppState>>>) -> Macro{
     return state.macros.get(index).cloned().unwrap();
 }      
 
+//getters for new
+
 #[tauri::command]
 fn get_new_name(state: tauri::State<Arc<Mutex<AppState>>>) -> String{
     let state = state.lock().unwrap();
@@ -141,7 +164,14 @@ fn get_new_name(state: tauri::State<Arc<Mutex<AppState>>>) -> String{
 fn get_key_bind(state: tauri::State<Arc<Mutex<AppState>>>) -> Vec<String>{
     let state = state.lock().unwrap();
     return state.new_macro.key_bind.clone();
-}  
+}
+
+#[tauri::command]
+fn get_new_has_loop(state: tauri::State<Arc<Mutex<AppState>>>) -> bool{
+    let state = state.lock().unwrap();
+    return state.new_macro.has_loop;
+}
+
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -169,7 +199,10 @@ pub fn run() {
             get_new_name,
             set_new_name,
             set_key_bind,
-            get_key_bind
+            get_key_bind,
+            set_loop,
+            edit_macro,
+            get_new_has_loop
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

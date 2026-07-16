@@ -1,28 +1,26 @@
 const { invoke } = window.__TAURI__.core;
 
-async function renderBricksButtons(){
+async function renderMacroButtons(){
     let container = document.getElementById("bricks");
-    let macro = await invoke("get_new_macro");
-    console.log(JSON.stringify(macro));
-
-    let bricks = macro.bricks;
+    let macros = await invoke("get_macros");
+    console.log(JSON.stringify(macros));
 
     container.innerHTML = '';
 
     const grid = document.createElement('div');
     grid.className = 'bricks-grid';
 
-    bricks.forEach((brick, index) => {
+    macros.forEach((macro, index) => {
         const button = document.createElement('button');
         button.className = 'brick-btn';
 
         button.addEventListener("click", async () => {
-            await invoke("delete_brick", { index: index });
-            console.log("deleted brick nr.",index);
-            renderBricksButtons();
+            await invoke("edit_macro", { index: index });
+            console.log("entered macro editor for ",index);
+            window.location.href = "edit.html";
         });
 
-        button.textContent = `${index+1}: ` + brick.button + ` ${brick.wait}s`;
+        button.textContent = `${index+1}. "${macro.name}" : ${macro.key_bind}`;
         button.dataset.index = index;
 
         grid.appendChild(button);
@@ -34,8 +32,9 @@ async function renderBricksButtons(){
 
 window.addEventListener("DOMContentLoaded", () => {
     
-    document.getElementById("save_button").addEventListener("click", () => {  
-        saveMacro();
+    document.getElementById("back_button").addEventListener("click", () => {  
+        window.location.href = 'index.html';
     });
 
+    renderMacroButtons();
 });
