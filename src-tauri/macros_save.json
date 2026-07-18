@@ -4,18 +4,30 @@
       "bricks": [
         {
           "button": "KeyA",
-          "wait": 1.0
+          "wait": 0.25
         },
         {
           "button": "KeyA",
-          "wait": 1.0
+          "wait": 0.25
+        },
+        {
+          "button": "KeyA",
+          "wait": 0.25
+        },
+        {
+          "button": "KeyA",
+          "wait": 0.25
+        },
+        {
+          "button": "KeyA",
+          "wait": 0.25
         }
       ],
       "key_bind": [
-        "Space",
-        "KeyA"
+        "KeyG",
+        "KeyH"
       ],
-      "name": "dawdw",
+      "name": "A name",
       "has_loop": false
     }
   ],
@@ -23,20 +35,32 @@
     "bricks": [
       {
         "button": "KeyA",
-        "wait": 1.0
+        "wait": 0.25
       },
       {
         "button": "KeyA",
-        "wait": 1.0
+        "wait": 0.25
+      },
+      {
+        "button": "KeyA",
+        "wait": 0.25
+      },
+      {
+        "button": "KeyA",
+        "wait": 0.25
+      },
+      {
+        "button": "KeyA",
+        "wait": 0.25
       }
     ],
     "key_bind": [
-      "Space",
-      "KeyA"
+      "KeyG",
+      "KeyH"
     ],
-    "name": "dawdw",
+    "name": "A name",
     "has_loop": false
   },
   "selected_key": "KeyA",
-  "selected_time": 1.0
+  "selected_time": 0.25
 }

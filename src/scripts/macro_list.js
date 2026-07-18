@@ -30,11 +30,13 @@ async function renderMacroButtons(){
 }
 
 
-window.addEventListener("DOMContentLoaded", () => {
-    
-    document.getElementById("back_button").addEventListener("click", () => {  
-        window.location.href = 'index.html';
-    });
+window.addEventListener("DOMContentLoaded", async () => {
 
     renderMacroButtons();
+    await invoke("start_listener");
+
+    document.getElementById("back_button").addEventListener("click", async () => {  
+        await invoke("stop_listener");
+        window.location.href = 'index.html';
+    });
 });

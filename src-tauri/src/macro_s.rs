@@ -17,9 +17,9 @@ pub struct Macro {
     pub has_loop: bool,
 }
 
-impl Macro{
-    pub fn new() -> Macro{
-        Macro{
+impl Macro {
+    pub fn new() -> Macro {
+        Macro {
             bricks: Vec::new(),
             key_bind: Vec::new(),
             name: "Default name".into(),

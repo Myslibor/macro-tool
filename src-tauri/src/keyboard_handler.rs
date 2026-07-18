@@ -1,5 +1,8 @@
 use rdev::Key;
 
+use enigo::Key as EnigoKey;
+use rdev::Key as RdevKey;
+
 pub fn js_code_to_rdev(code: &str) -> Option<Key> {
     Some(match code {
         // Letters
@@ -186,7 +189,7 @@ pub fn rdev_to_js_code(key: Key) -> Option<&'static str> {
         Key::KpDivide => "NumpadDivide",
 
         // Modifiers
-        Key::Alt => "AltLeft",      // Note: JS has AltLeft/AltRight, rdev has single Alt
+        Key::Alt => "AltLeft", // Note: JS has AltLeft/AltRight, rdev has single Alt
         Key::ControlLeft => "ControlLeft",
         Key::ControlRight => "ControlRight",
         Key::ShiftLeft => "ShiftLeft",
@@ -245,6 +248,132 @@ pub fn rdev_to_js_code(key: Key) -> Option<&'static str> {
         Key::F10 => "F10",
         Key::F11 => "F11",
         Key::F12 => "F12",
+
+        // Unsupported keys
+        _ => return None,
+    })
+}
+
+pub fn rdev_to_enigo_key(key: RdevKey) -> Option<EnigoKey> {
+    Some(match key {
+        // Letters
+        RdevKey::KeyA => EnigoKey::A,
+        RdevKey::KeyB => EnigoKey::B,
+        RdevKey::KeyC => EnigoKey::C,
+        RdevKey::KeyD => EnigoKey::D,
+        RdevKey::KeyE => EnigoKey::E,
+        RdevKey::KeyF => EnigoKey::F,
+        RdevKey::KeyG => EnigoKey::G,
+        RdevKey::KeyH => EnigoKey::H,
+        RdevKey::KeyI => EnigoKey::I,
+        RdevKey::KeyJ => EnigoKey::J,
+        RdevKey::KeyK => EnigoKey::K,
+        RdevKey::KeyL => EnigoKey::L,
+        RdevKey::KeyM => EnigoKey::M,
+        RdevKey::KeyN => EnigoKey::N,
+        RdevKey::KeyO => EnigoKey::O,
+        RdevKey::KeyP => EnigoKey::P,
+        RdevKey::KeyQ => EnigoKey::Q,
+        RdevKey::KeyR => EnigoKey::R,
+        RdevKey::KeyS => EnigoKey::S,
+        RdevKey::KeyT => EnigoKey::T,
+        RdevKey::KeyU => EnigoKey::U,
+        RdevKey::KeyV => EnigoKey::V,
+        RdevKey::KeyW => EnigoKey::W,
+        RdevKey::KeyX => EnigoKey::X,
+        RdevKey::KeyY => EnigoKey::Y,
+        RdevKey::KeyZ => EnigoKey::Z,
+
+        // Number row
+        RdevKey::Num0 => EnigoKey::Num0,
+        RdevKey::Num1 => EnigoKey::Num1,
+        RdevKey::Num2 => EnigoKey::Num2,
+        RdevKey::Num3 => EnigoKey::Num3,
+        RdevKey::Num4 => EnigoKey::Num4,
+        RdevKey::Num5 => EnigoKey::Num5,
+        RdevKey::Num6 => EnigoKey::Num6,
+        RdevKey::Num7 => EnigoKey::Num7,
+        RdevKey::Num8 => EnigoKey::Num8,
+        RdevKey::Num9 => EnigoKey::Num9,
+
+        // Numpad
+        RdevKey::Kp0 => EnigoKey::Numpad0,
+        RdevKey::Kp1 => EnigoKey::Numpad1,
+        RdevKey::Kp2 => EnigoKey::Numpad2,
+        RdevKey::Kp3 => EnigoKey::Numpad3,
+        RdevKey::Kp4 => EnigoKey::Numpad4,
+        RdevKey::Kp5 => EnigoKey::Numpad5,
+        RdevKey::Kp6 => EnigoKey::Numpad6,
+        RdevKey::Kp7 => EnigoKey::Numpad7,
+        RdevKey::Kp8 => EnigoKey::Numpad8,
+        RdevKey::Kp9 => EnigoKey::Numpad9,
+        RdevKey::KpDelete => EnigoKey::Decimal,
+        RdevKey::KpReturn => EnigoKey::Return,
+        RdevKey::KpPlus => EnigoKey::Add,
+        RdevKey::KpMinus => EnigoKey::Subtract,
+        RdevKey::KpMultiply => EnigoKey::Multiply,
+        RdevKey::KpDivide => EnigoKey::Divide,
+
+        // Modifiers
+        RdevKey::Alt => EnigoKey::Alt,
+        RdevKey::ControlLeft => EnigoKey::Control,
+        RdevKey::ControlRight => EnigoKey::Control,
+        RdevKey::ShiftLeft => EnigoKey::Shift,
+        RdevKey::ShiftRight => EnigoKey::Shift,
+        RdevKey::MetaLeft => EnigoKey::Meta,
+        RdevKey::MetaRight => EnigoKey::Meta,
+        RdevKey::CapsLock => EnigoKey::CapsLock,
+        RdevKey::NumLock => EnigoKey::Numlock,
+
+        // Navigation
+        RdevKey::UpArrow => EnigoKey::UpArrow,
+        RdevKey::DownArrow => EnigoKey::DownArrow,
+        RdevKey::LeftArrow => EnigoKey::LeftArrow,
+        RdevKey::RightArrow => EnigoKey::RightArrow,
+        RdevKey::Home => EnigoKey::Home,
+        RdevKey::End => EnigoKey::End,
+        RdevKey::PageUp => EnigoKey::PageUp,
+        RdevKey::PageDown => EnigoKey::PageDown,
+        RdevKey::Insert => EnigoKey::Insert,
+        RdevKey::Delete => EnigoKey::Delete,
+
+        // Control keys
+        RdevKey::Return => EnigoKey::Return,
+        RdevKey::Escape => EnigoKey::Escape,
+        RdevKey::Backspace => EnigoKey::Backspace,
+        RdevKey::Tab => EnigoKey::Tab,
+        RdevKey::Space => EnigoKey::Space,
+        RdevKey::PrintScreen => EnigoKey::PrintScr,
+        RdevKey::ScrollLock => return None,
+        RdevKey::Pause => EnigoKey::Pause,
+
+        // Punctuation / symbols
+        RdevKey::BackQuote     => EnigoKey::Unicode('`'),
+        RdevKey::Minus         => EnigoKey::Unicode('-'),
+        RdevKey::Equal         => EnigoKey::Unicode('='),
+        RdevKey::LeftBracket   => EnigoKey::Unicode('['),
+        RdevKey::RightBracket  => EnigoKey::Unicode(']'),
+        RdevKey::BackSlash     => EnigoKey::Unicode('\\'),
+        RdevKey::IntlBackslash => EnigoKey::Unicode('\\'), // best approximation
+        RdevKey::SemiColon     => EnigoKey::Unicode(';'),
+        RdevKey::Quote         => EnigoKey::Unicode('\''),
+        RdevKey::Comma         => EnigoKey::Unicode(','),
+        RdevKey::Dot           => EnigoKey::Unicode('.'),
+        RdevKey::Slash         => EnigoKey::Unicode('/'),
+
+        // Function keys
+        RdevKey::F1 => EnigoKey::F1,
+        RdevKey::F2 => EnigoKey::F2,
+        RdevKey::F3 => EnigoKey::F3,
+        RdevKey::F4 => EnigoKey::F4,
+        RdevKey::F5 => EnigoKey::F5,
+        RdevKey::F6 => EnigoKey::F6,
+        RdevKey::F7 => EnigoKey::F7,
+        RdevKey::F8 => EnigoKey::F8,
+        RdevKey::F9 => EnigoKey::F9,
+        RdevKey::F10 => EnigoKey::F10,
+        RdevKey::F11 => EnigoKey::F11,
+        RdevKey::F12 => EnigoKey::F12,
 
         // Unsupported keys
         _ => return None,
