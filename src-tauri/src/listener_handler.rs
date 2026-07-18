@@ -3,7 +3,7 @@ use std::{collections::HashSet, default, ops::Index, ptr::null, sync::{Arc, Mute
 use enigo::{Direction::{Click, Press}, Enigo, Keyboard, Settings};
 use rdev::{Event, EventType, listen, simulate};
 
-use crate::{keyboard_handler::{js_code_to_rdev, rdev_to_enigo_key, rdev_to_js_code}, listener_handler, macro_s::Macro};
+use crate::{AppState, keyboard_handler::{js_code_to_rdev, rdev_to_enigo_key, rdev_to_js_code}, listener_handler, macro_s::Macro};
 
 pub struct ListenerState {
     pub running_macros: Mutex<Vec<RunningMacro>>,
@@ -27,7 +27,7 @@ impl ListenerState {
     }
 }
 
-pub fn spawn_key_listener(macros_this: Arc<Mutex<Vec<Macro>>>, listener_state: Arc<ListenerState>)
+pub fn spawn_key_listener(app_state: Arc<Mutex<AppState>>, listener_state: Arc<ListenerState>)
  -> JoinHandle<()>{
 
     let handle2 = spawn_cleanup_thread(listener_state.clone());
@@ -49,7 +49,7 @@ pub fn spawn_key_listener(macros_this: Arc<Mutex<Vec<Macro>>>, listener_state: A
                         let pres_check = pressed.insert(key_code.to_string());
                         if pres_check{
                             println!("Pressed {}", key_code);
-                            check_macro_activation(&macros_this, &listener_state, &pressed);
+                            check_macro_activation(&app_state, &listener_state, &pressed);
                         } 
                     }
                 }
@@ -86,7 +86,7 @@ pub fn spawn_cleanup_thread(listener_state: Arc<ListenerState>) -> JoinHandle<()
 }
 
 pub fn check_macro_activation(
-    macros: &Arc<Mutex<Vec<Macro>>>,
+    app_state: &Arc<Mutex<AppState>>,
     listener_state: &Arc<ListenerState>,
     pressed: &HashSet<String>)
 {
@@ -94,7 +94,8 @@ pub fn check_macro_activation(
         return;
     }
 
-    let macros_guard = macros.lock().unwrap();
+    let app_state_guard = app_state.lock().unwrap();
+    let macros_guard = &app_state_guard.macros;
     let listener_state_clone = listener_state.clone();
 
     let mut to_stop: Vec<RunningMacro> = Vec::new();
@@ -111,8 +112,7 @@ pub fn check_macro_activation(
         });
 
         if let Some(index) = already_running {
-            println!("its running");
-            if macro_one.has_loop{
+            if pressed.len() == macro_one.key_bind.len() && macro_one.key_bind.iter().all(|key| pressed.contains(key)) {
                 to_stop.push(running_macros.remove(index));
             }
         } else {
@@ -144,12 +144,9 @@ pub fn start_macro(macro_this: Macro, listener_state: Arc<ListenerState>) {
         move || {
             let mut enigo_guard = listener_state_clone.enigo.lock().unwrap();
             execute_macro(&macro_this, &stop_flag, &stop_all_flag, &mut enigo_guard);
-            
-            println!("finished 1");
         }
     });
 
-    println!("finished 2");
 
     listener_state.running_macros.lock().unwrap().push(RunningMacro {
         macro_t: macro_this,
@@ -176,7 +173,6 @@ pub fn execute_macro(macro_this: &Macro, stop_flag: &Arc<Mutex<bool>>, stop_all_
 
                 let enigo_key = rdev_to_enigo_key(key).unwrap();
                 let _ = enigo.key(enigo_key, Click);
-                println!("clicked {:?}",enigo_key);
                 std::thread::sleep(Duration::from_secs_f64(brick.wait));
 
             }

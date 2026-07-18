@@ -142,11 +142,9 @@ fn start_listener(
         return false;
     }
 
-    let app_state = state.lock().unwrap();
-    let macros = Arc::new(Mutex::new(app_state.macros.clone()));
-
+    let app_state = state.inner().clone();
     let listener_state_arc = listener_state.inner().clone();
-    let handle = spawn_key_listener(macros, listener_state_arc);
+    let handle = spawn_key_listener(app_state, listener_state_arc);
 
     println!("Listiner spawned");
 
