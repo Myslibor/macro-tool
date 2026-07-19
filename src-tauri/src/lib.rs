@@ -2,10 +2,8 @@ use std::f64;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
-use rdev::{listen, Event, EventType, Key};
 use serde::{Deserialize, Serialize};
 
-use crate::keyboard_handler::{js_code_to_rdev, rdev_to_js_code};
 use crate::listener_handler::{spawn_key_listener, stop_all_macros, stop_everything};
 use crate::macro_s::{Brick, Macro};
 use crate::save::save_state_to_json;
@@ -40,7 +38,7 @@ fn set_time(time: f64, state: tauri::State<Arc<Mutex<AppState>>>) {
 fn create_new_macro(state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
 
-    let mut new_macro = Macro::new();
+    let new_macro = Macro::new();
 
     state.new_macro = new_macro;
 }
@@ -60,7 +58,7 @@ fn edit_macro(index: usize, state: tauri::State<Arc<Mutex<AppState>>>) {
 fn add_brick(state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
 
-    let mut new_brick = Brick {
+    let new_brick = Brick {
         button: state.selected_key.clone(),
         wait: state.selected_time,
     };
@@ -88,7 +86,7 @@ fn save_macro(state: tauri::State<Arc<Mutex<AppState>>>) -> bool {
 
 #[tauri::command]
 fn save_everything(state: tauri::State<Arc<Mutex<AppState>>>) {
-    let mut state = state.lock().unwrap();
+    let state = state.lock().unwrap();
 
     save_state_to_json(&state);
 }
@@ -160,8 +158,7 @@ fn stop_listener(
     let handle_guard = listener_handle.lock().unwrap();
 
     if let Some(_handle) = &*handle_guard {
-        *listener_state.inner().stop_all_flag.lock().unwrap() = true;
-        stop_all_macros(&listener_state.inner().clone());
+        stop_everything(&listener_state.inner().clone());
         println!("Listiner stoped");
         return true;
     } else {
@@ -183,7 +180,7 @@ fn is_listener_running(listener_handle: tauri::State<Arc<Mutex<Option<JoinHandle
 
 #[tauri::command]
 fn get_selected_key(state: tauri::State<Arc<Mutex<AppState>>>) -> String {
-    let mut state = state.lock().unwrap();
+    let state = state.lock().unwrap();
 
     return state.selected_key.clone();
 }
@@ -262,7 +259,8 @@ pub fn run() {
             start_listener,
             stop_listener,
             stop_all_macros_command,
-            is_listener_running
+            is_listener_running,
+            get_selected_key
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -1,6 +1,5 @@
-use std::{usize, vec};
+use std::{usize};
 
-use rdev::Key;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

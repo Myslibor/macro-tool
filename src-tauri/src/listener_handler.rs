@@ -1,9 +1,9 @@
-use std::{collections::HashSet, default, ops::Index, ptr::null, sync::{Arc, Mutex}, thread::{self, JoinHandle}, time::Duration};
+use std::{collections::HashSet, sync::{Arc, Mutex}, thread::{self, JoinHandle}, time::Duration};
 
-use enigo::{Direction::{Click, Press}, Enigo, Keyboard, Settings};
-use rdev::{Event, EventType, listen, simulate};
+use enigo::{Direction::{Click}, Enigo, Keyboard, Settings};
+use rdev::{ EventType, listen};
 
-use crate::{AppState, keyboard_handler::{js_code_to_rdev, rdev_to_enigo_key, rdev_to_js_code}, listener_handler, macro_s::Macro};
+use crate::{AppState, keyboard_handler::{js_code_to_rdev, rdev_to_enigo_key, rdev_to_js_code}, macro_s::Macro};
 
 pub struct ListenerState {
     pub running_macros: Mutex<Vec<RunningMacro>>,
@@ -30,7 +30,7 @@ impl ListenerState {
 pub fn spawn_key_listener(app_state: Arc<Mutex<AppState>>, listener_state: Arc<ListenerState>)
  -> JoinHandle<()>{
 
-    let handle2 = spawn_cleanup_thread(listener_state.clone());
+    let _handle2 = spawn_cleanup_thread(listener_state.clone());
 
     let handle = thread::spawn(move || {
         let pressed_keys: Mutex<HashSet<String>> = Mutex::new(HashSet::new()); 
@@ -200,9 +200,7 @@ pub fn stop_all_macros(listener_state: &Arc<ListenerState>){
     println!("All macros stopped");
 }
 
-pub fn stop_everything(listener_handle: Option<JoinHandle<()>>, listener_state: Arc<ListenerState>){
+pub fn stop_everything(listener_state: &Arc<ListenerState>){
     *listener_state.stop_all_flag.lock().unwrap() = true;
     stop_all_macros(&listener_state);
-    
-
 }
