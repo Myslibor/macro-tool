@@ -161,8 +161,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         setName();
     });
 
-    document.getElementById("select_keybind_name").addEventListener("click", () => {
+    document.getElementById("select_keybind_button").addEventListener("click", () => {
         document.addEventListener("keydown", readKeyBind);
+        keyBind = [];
     });
 
     document.getElementById("loop_button").addEventListener("click", () => {  
@@ -175,6 +176,10 @@ window.addEventListener("DOMContentLoaded", async () => {
     
     document.getElementById("save_button").addEventListener("click", () => {  
         saveMacro();
+    });
+
+    document.getElementById("abort_button").addEventListener("click", () => {  
+        window.location.href = "index.html";
     });
 
     renderBricksButtons();
