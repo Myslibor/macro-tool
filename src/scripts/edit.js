@@ -19,14 +19,15 @@ let hasLoop;
 let macro;
 
 async function load_new_data() {
-    macroName = await invoke("get_new_name");
-    keyBind = await invoke("get_key_bind");
-    hasLoop = await invoke("get_new_has_loop");
+    macro = await invoke("get_new_macro");
+    macroName = macro.name;
+    keyBind = macro.key_bind;
+    hasLoop = macro.has_loop;
 }
 
 async function readKey(event) {
     console.log("You pressed:", event.key);
-    await invoke("read_key", {keyName: event.key, keyCode: event.code});
+    await invoke("read_key", {keyCode: event.code});
     document.removeEventListener("keydown", readKey);
 
     selectedKey = event.code;
@@ -40,9 +41,8 @@ async function readKeyBind(event) {
 
         await invoke("set_key_bind", {keyBind: keyBind})
 
+        keyBindPara.textContent = "KeyBind is: " + keyBind;
         keyBind = [];
-        let temp_keybind = await invoke("get_key_bind");
-        keyBindPara.textContent = "KeyBind is: " + temp_keybind;
         return;
     }
 
@@ -75,7 +75,6 @@ async function setTime() {
 
     if(Number.isNaN(time)){
         alert("Please enter a valid float number!");
-        resolve(null);
         return;
     }
 

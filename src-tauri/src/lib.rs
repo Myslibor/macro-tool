@@ -1,17 +1,19 @@
-use std::f64;
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 
 use serde::{Deserialize, Serialize};
+use tauri::Manager;
 
 use crate::listener_handler::{spawn_key_listener, stop_all_macros, stop_everything};
 use crate::macro_s::{Brick, Macro};
 use crate::save::save_state_to_json;
+use crate::tray_icon::create_tray_icon;
 
 mod keyboard_handler;
 mod listener_handler;
 mod macro_s;
 mod save;
+mod tray_icon;
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct AppState {
@@ -22,9 +24,9 @@ struct AppState {
 }
 
 #[tauri::command]
-fn read_key(key_name: String, key_code: String, state: tauri::State<Arc<Mutex<AppState>>>) {
+fn read_key(key_code: String, state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
-    println!("{} - {}", key_name, key_code);
+    println!("{}", key_code);
     state.selected_key = key_code;
 }
 
@@ -85,10 +87,10 @@ fn save_macro(state: tauri::State<Arc<Mutex<AppState>>>) -> bool {
 }
 
 #[tauri::command]
-fn save_everything(state: tauri::State<Arc<Mutex<AppState>>>) {
+fn save_everything(app_handle: tauri::AppHandle, state: tauri::State<Arc<Mutex<AppState>>>) {
     let state = state.lock().unwrap();
 
-    save_state_to_json(&state);
+    save_state_to_json(&app_handle ,&state);
 }
 
 #[tauri::command]
@@ -102,23 +104,18 @@ fn delete_brick(index: usize, state: tauri::State<Arc<Mutex<AppState>>>) {
 #[tauri::command]
 fn set_new_name(name: String, state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
-
-    state.new_macro.name = name.clone();
-    println!("new name is {}", name);
+    state.new_macro.name = name;
 }
 
 #[tauri::command]
 fn set_key_bind(key_bind: Vec<String>, state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
-
-    state.new_macro.key_bind = key_bind.clone();
-    println!("new keybind is {:?}", key_bind);
+    state.new_macro.key_bind = key_bind;
 }
 
 #[tauri::command]
 fn set_loop(has_loop: bool, state: tauri::State<Arc<Mutex<AppState>>>) {
     let mut state = state.lock().unwrap();
-
     state.new_macro.has_loop = has_loop;
     println!("new macro loop state is {}", has_loop);
 }
@@ -225,19 +222,32 @@ fn get_new_has_loop(state: tauri::State<Arc<Mutex<AppState>>>) -> bool {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let init_state = save::load_json_to_state().unwrap_or(AppState {
-        macros: Vec::new(),
-        new_macro: Macro::new(),
-        selected_key: "KeyA".into(),
-        selected_time: 1.0,
-    });
-
     tauri::Builder::default()
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
-        .manage(Arc::new(Mutex::new(init_state)))
-        .manage(Arc::new(listener_handler::ListenerState::new()))
-        .manage(Arc::new(Mutex::new(Option::<JoinHandle<()>>::None)))
+        .setup(|app| {
+            let init_state = save::load_json_to_state(app.handle()).unwrap_or(AppState {
+                macros: Vec::new(),
+                new_macro: Macro::new(),
+                selected_key: "KeyA".into(),
+                selected_time: 1.0,
+            });
+            let _tray = create_tray_icon(&app.handle());
+
+            let window = app.get_webview_window("main").unwrap();
+            let w = window.clone();
+            window.on_window_event(move |event| {
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = w.hide();
+                }
+            });
+
+            app.manage(Arc::new(Mutex::new(init_state)));
+            app.manage(Arc::new(listener_handler::ListenerState::new()));
+            app.manage(Arc::new(Mutex::new(Option::<JoinHandle<()>>::None)));
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             read_key,
             set_time,

@@ -8,7 +8,7 @@ use crate::{AppState, keyboard_handler::{js_code_to_rdev, rdev_to_enigo_key, rde
 pub struct ListenerState {
     pub running_macros: Mutex<Vec<RunningMacro>>,
     pub stop_all_flag: Arc<Mutex<bool>>,
-    pub enigo: Mutex<Enigo>,
+    pub injecting: Arc<Mutex<bool>>,
 }
 
 pub struct RunningMacro {
@@ -22,7 +22,7 @@ impl ListenerState {
         ListenerState {
             running_macros: Mutex::new(Vec::new()),
             stop_all_flag: Arc::new(Mutex::new(false)),
-            enigo: Mutex::new(Enigo::new(&Settings::default()).unwrap()),
+            injecting: Arc::new(Mutex::new(false)),
         }
     }
 }
@@ -36,6 +36,11 @@ pub fn spawn_key_listener(app_state: Arc<Mutex<AppState>>, listener_state: Arc<L
         let pressed_keys: Mutex<HashSet<String>> = Mutex::new(HashSet::new()); 
 
         if let Err(e) = listen(move |event| {
+
+            if *listener_state.injecting.lock().unwrap() {
+                return;
+            }
+
             let mut pressed = pressed_keys.lock().unwrap();
 
             if *listener_state.stop_all_flag.lock().unwrap(){
@@ -135,15 +140,16 @@ pub fn check_macro_activation(
 pub fn start_macro(macro_this: Macro, listener_state: Arc<ListenerState>) {
     let stop_flag = Arc::new(Mutex::new(false));
     let stop_all_flag = listener_state.stop_all_flag.clone();
+    let injecting_flag = listener_state.injecting.clone();
 
     let handle = thread::spawn({
         let macro_this = macro_this.clone();
         let stop_flag = stop_flag.clone();
         let stop_all_flag = stop_all_flag.clone();
-        let listener_state_clone = listener_state.clone();
+        let injecting_clone = injecting_flag.clone();
         move || {
-            let mut enigo_guard = listener_state_clone.enigo.lock().unwrap();
-            execute_macro(&macro_this, &stop_flag, &stop_all_flag, &mut enigo_guard);
+            let mut enigo = Enigo::new(&Settings::default()).expect("Creating Enigo engine");
+            execute_macro(&macro_this, &stop_flag, &stop_all_flag, &mut enigo, injecting_clone);
         }
     });
 
@@ -156,7 +162,7 @@ pub fn start_macro(macro_this: Macro, listener_state: Arc<ListenerState>) {
     println!("Exiting macro starter");
 }
 
-pub fn execute_macro(macro_this: &Macro, stop_flag: &Arc<Mutex<bool>>, stop_all_flag: &Arc<Mutex<bool>>, enigo: &mut Enigo){
+pub fn execute_macro(macro_this: &Macro, stop_flag: &Arc<Mutex<bool>>, stop_all_flag: &Arc<Mutex<bool>>, enigo: &mut Enigo, injecting: Arc<Mutex<bool>>){
     let iterations = if macro_this.has_loop {usize::MAX} else {1};
 
     for _ in 0..iterations{
@@ -170,11 +176,12 @@ pub fn execute_macro(macro_this: &Macro, stop_flag: &Arc<Mutex<bool>>, stop_all_
             }
 
             if let Some(key) = js_code_to_rdev(&brick.button){
-
-                let enigo_key = rdev_to_enigo_key(key).unwrap();
-                let _ = enigo.key(enigo_key, Click);
-                std::thread::sleep(Duration::from_secs_f64(brick.wait));
-
+                if let Some(enigo_key) = rdev_to_enigo_key(key) {
+                    *injecting.lock().unwrap() = true;
+                    let _ = enigo.key(enigo_key, Click);
+                    *injecting.lock().unwrap() = false;
+                    std::thread::sleep(Duration::from_secs_f64(brick.wait));
+                }
             }
         }
     }
