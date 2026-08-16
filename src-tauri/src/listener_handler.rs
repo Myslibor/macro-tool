@@ -117,9 +117,7 @@ pub fn check_macro_activation(
         });
 
         if let Some(index) = already_running {
-            if pressed.len() == macro_one.key_bind.len() && macro_one.key_bind.iter().all(|key| pressed.contains(key)) {
-                to_stop.push(running_macros.remove(index));
-            }
+            to_stop.push(running_macros.remove(index));
         } else {
             to_start.push(macro_one.clone());
         }

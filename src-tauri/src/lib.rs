@@ -223,7 +223,6 @@ fn get_new_has_loop(state: tauri::State<Arc<Mutex<AppState>>>) -> bool {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let init_state = save::load_json_to_state(app.handle()).unwrap_or(AppState {
